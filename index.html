@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E9EFEC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1513" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Outfit">
+<title>Den Haag Outfit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231D6A4E'/%3E%3Cpath d='M24 14 14 19l-4 26h8l4-15v22h20V30l4 15h8l-4-26-10-5c-2 3-5 4-8 4s-6-1-8-4z' fill='%23F2BA2E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone column — top bar, sky card (weather), day timeline, outfit tiles, coming days */
+:root{
+  --bg:#E9EFEC; --surface:#FFFFFF; --surface-2:#F4F7F5; --fg:#12201C; --muted:#5A6B66; --line:#D5DEDA;
+  --green:#1D6A4E; --green-soft:#DDEDE5; --yellow:#E8A800; --yellow-ink:#7A5600; --rain:#2D6DA8;
+  --sky-a:#CFE3EE; --sky-b:#EAF2F5; --sky-fg:#10222B;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --shadow:0 1px 2px rgba(18,32,28,.06),0 8px 24px -12px rgba(18,32,28,.18);
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0D1513; --surface:#16201D; --surface-2:#1B2723; --fg:#E6EEEB; --muted:#94A49F; --line:#28352F;
+  --green:#66C59D; --green-soft:#1A2F27; --yellow:#F2BA2E; --yellow-ink:#F2BA2E; --rain:#80B6E6;
+  --sky-a:#1C3442; --sky-b:#15232B; --sky-fg:#E8F1F5;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6); color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.5 var(--body);
+  padding-inline:max(16px,env(safe-area-inset-left));padding-block:calc(14px + env(safe-area-inset-top)) calc(40px + env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+
+/* Top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.place{display:flex;align-items:center;gap:8px;font:700 17px var(--display)}
+.place svg{width:18px;height:18px;color:var(--green)}
+.bar-right{display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;color:var(--muted);font-weight:600;font-size:14px;padding:6px 14px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--green);color:var(--surface)}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.iconbtn svg{width:18px;height:18px}
+.iconbtn.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Sky card */
+.sky{position:relative;overflow:hidden;border-radius:24px;padding:20px 20px 18px;color:var(--sky-fg);
+  background:linear-gradient(160deg,var(--sky-a),var(--sky-b));box-shadow:var(--shadow)}
+.sky[data-sky="sun"]{--sky-a:#FFE3A3;--sky-b:#FFF4DA;--sky-fg:#2B2008}
+.sky[data-sky="cloud"]{--sky-a:#D6E0E4;--sky-b:#EEF2F3;--sky-fg:#17252B}
+.sky[data-sky="rain"]{--sky-a:#AFC8DD;--sky-b:#DCE7F0;--sky-fg:#0E2233}
+.sky[data-sky="snow"]{--sky-a:#E4EDF5;--sky-b:#F8FBFD;--sky-fg:#15222E}
+@media (prefers-color-scheme: dark){
+  .sky[data-sky="sun"]{--sky-a:#4A3812;--sky-b:#211B0E;--sky-fg:#FFF1D2}
+  .sky[data-sky="cloud"]{--sky-a:#2A363C;--sky-b:#192125;--sky-fg:#E7EEF1}
+  .sky[data-sky="rain"]{--sky-a:#1B3651;--sky-b:#121E2A;--sky-fg:#E3EEF8}
+  .sky[data-sky="snow"]{--sky-a:#33414D;--sky-b:#1C242B;--sky-fg:#EEF4F8}}
+.sky-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sky .when{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.sky .cond{font:600 16px var(--body);margin-top:2px}
+.sky .wx{width:72px;height:72px;flex:none}
+.sky .wx svg{width:100%;height:100%}
+.bigtemp{display:flex;align-items:baseline;gap:10px;margin-top:6px;font-variant-numeric:tabular-nums}
+.bigtemp .hi{font:800 76px/0.95 var(--display);letter-spacing:-.04em}
+.bigtemp .lo{font:600 22px var(--display);opacity:.65}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.stat{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--sky-fg) 9%,transparent);font-variant-numeric:tabular-nums}
+.stat svg{width:15px;height:15px;opacity:.8}
+.advice{margin:14px 0 0;font-size:16px;line-height:1.45;text-wrap:pretty;max-width:46ch}
+
+/* Timeline */
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center;font-variant-numeric:tabular-nums}
+.slot .t{font-size:12px;color:var(--muted);font-weight:600}
+.slot svg{width:28px;height:28px;margin:4px auto 2px;display:block}
+.slot .f{font:700 19px var(--display)}
+.slot .p{font-size:12px;color:var(--rain);font-weight:600;min-height:18px}
+
+/* Section headings */
+.h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 2px 10px}
+.h h2{font:700 21px/1.2 var(--display);margin:0}
+.h span{font-size:12.5px;color:var(--muted)}
+
+/* Outfit tiles */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:var(--shadow)}
+.tile.extra{background:var(--surface-2);box-shadow:none;border-style:dashed}
+.tile .art{height:78px;border-radius:14px;background:var(--green-soft);color:var(--green);display:grid;place-items:center}
+.tile.extra .art{background:transparent;color:var(--muted)}
+.tile .art svg{width:52px;height:52px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.tile .slot-l{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow-ink)}
+.tile b{font:700 16px/1.25 var(--display);display:block}
+.tile .d{font-size:13px;color:var(--muted);line-height:1.4}
+.tile .why{font-size:12px;font-weight:600;color:var(--fg);opacity:.75}
+.tile a{margin-top:auto;align-self:flex-start;font-size:13px;font-weight:700;color:var(--green);text-decoration:none;padding:7px 12px;border-radius:999px;background:var(--green-soft);display:inline-flex;align-items:center;gap:6px}
+.tile a svg{width:13px;height:13px}
+.tile a:hover{filter:brightness(.97)}
+
+/* Coming days */
+.days{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.day{display:grid;grid-template-columns:76px 30px 1fr 52px;align-items:center;gap:10px;padding:11px 14px;border:0;background:none;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
+.day+.day{border-top:1px solid var(--line)}
+.day[aria-pressed="true"]{background:var(--green-soft)}
+.day .n{font-weight:600}
+.day svg{width:26px;height:26px}
+.range{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.range i{position:absolute;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--rain),var(--yellow))}
+.range-wrap{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;gap:8px;font-size:13px}
+.range-wrap .lo{color:var(--muted);text-align:right}
+.day .rp{font-size:12.5px;font-weight:600;color:var(--rain);text-align:right}
+
+.foot{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 0}
+.foot a{color:inherit}
+.msg{background:var(--surface);border:1px dashed var(--line);border-radius:20px;padding:22px}
+.msg b{display:block;font:700 18px var(--display);margin-bottom:4px}
+.msg button{margin-top:12px;border:0;background:var(--green);color:var(--surface);font-weight:700;padding:9px 16px;border-radius:999px;cursor:pointer}
+.skeleton{height:280px;border-radius:24px;background:linear-gradient(90deg,var(--surface) 0%,var(--surface-2) 50%,var(--surface) 100%);background-size:200% 100%;animation:sh 1.4s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media (max-width:360px){.bigtemp .hi{font-size:62px}.day{grid-template-columns:64px 26px 1fr 44px;gap:8px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:no-preference){.fade{animation:fade .35s ease-out both}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="place"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Den Haag</div>
+    <div class="bar-right">
+      <div class="seg" role="group" aria-label="Clothing for">
+        <button id="g-men" data-g="men" aria-pressed="true">Men</button>
+        <button id="g-women" data-g="women" aria-pressed="false">Women</button>
+      </div>
+      <button class="iconbtn" id="refresh" aria-label="Refresh forecast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg></button>
+    </div>
+  </div>
+  <main id="main"><div class="skeleton"></div></main>
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+"use strict";
+const LAT=52.0705, LON=4.3007;
+const API='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+
+  '&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,uv_index_max'+
+  '&hourly=apparent_temperature,precipitation_probability,weather_code'+
+  '&timezone=Europe%2FAmsterdam&forecast_days=7';
+const CACHE_KEY='dh-outfit-forecast-v2', GENDER_KEY='dh-outfit-gender';
+
+/* ---------- Icons ---------- */
+const G={ /* garments, 24x24 stroke */
+  tee:'<path d="M8 3 3 6l2 4 3-1v12h8V9l3 1 2-4-5-3c-1 1.4-2.4 2-4 2s-3-.6-4-2z"/>',
+  long:'<path d="M8 3 4 5 2 19h3l2-9 1-1v12h8V9l1 1 2 9h3L20 5l-4-2c-1 1.4-2.4 2-4 2s-3-.6-4-2z"/>',
+  knit:'<path d="M8 3 4 5 2 19h3l2-9 1-1v12h8V9l1 1 2 9h3L20 5l-4-2c-1 1.4-2.4 2-4 2s-3-.6-4-2z"/><path d="M8 18.5h8M2.4 16.5h3M18.6 16.5h3M10 3.6c1.3.6 2.7.6 4 0"/>',
+  jacket:'<path d="M8 3 4 5 2 19h3l2-9 1-1v12h8V9l1 1 2 9h3L20 5l-4-2-4 3-4-3z"/><path d="M12 6v15M9 13h1.5"/>',
+  coat:'<path d="M8 2 4 4 2 18h3l2-8 1-1v13h8V9l1 1 2 8h3L20 4l-4-2-4 3-4-3z"/><path d="M12 5v17M14.2 11h.01M14.2 15h.01M14.2 19h.01"/>',
+  rain:'<path d="M9 4.5C9 1.5 15 1.5 15 4.5l4 1.5 2 13h-3l-2-9v11H8V10l-2 9H3L5 6z"/><path d="M12 8v13M9 4.5c1.8 1 4.2 1 6 0"/>',
+  trousers:'<path d="M7 3h10l1 18h-4l-2-11-2 11H6z"/><path d="M7 6h10"/>',
+  shorts:'<path d="M6 5h12l1 10h-5l-2-5-2 5H5z"/><path d="M6 7.5h12"/>',
+  skirt:'<path d="M8 4h8l3 15H5z"/><path d="M8 7h8M10 7l-1.5 12M14 7l1.5 12"/>',
+  sneaker:'<path d="M3 16 4 9l4 1 3 2 9 2.5V18H3z"/><path d="M3 16h17M8 12l1-1M10 13l1-1"/>',
+  boot:'<path d="M7 3h5v9l7 3v5H7z"/><path d="M7 17h12M7 6h5"/>',
+  umbrella:'<path d="M3 12a9 9 0 0 1 18 0z"/><path d="M12 12v7a2 2 0 0 1-4 0M12 3v0"/>',
+  scarf:'<path d="M5 6c4 2 10 2 14 0v4c-4 2-10 2-14 0z"/><path d="M14 11v10h3V10"/>',
+  beanie:'<path d="M5 15c0-5 3-9 7-9s7 4 7 9z"/><path d="M4 15h16v3H4zM12 4v2"/>',
+  shades:'<path d="M2 9h20M4 9l1 5a3 3 0 0 0 3 2h1a3 3 0 0 0 3-3 3 3 0 0 0 3 3h1a3 3 0 0 0 3-2l1-5"/>'
+};
+/* weather icons, colored */
+const W={
+  sun:'<circle cx="32" cy="32" r="11" fill="#F2B227"/><g stroke="#F2B227" stroke-width="3.5" stroke-linecap="round"><path d="M32 8v6M32 50v6M8 32h6M50 32h6M15 15l4 4M45 45l4 4M15 49l4-4M45 19l4-4"/></g>',
+  partly:'<circle cx="24" cy="24" r="9" fill="#F2B227"/><g stroke="#F2B227" stroke-width="3" stroke-linecap="round"><path d="M24 7v4M7 24h4M12 12l3 3M36 12l-3 3"/></g><path d="M22 50h24a9 9 0 0 0 0-18 13 13 0 0 0-24.5 3A7.5 7.5 0 0 0 22 50z" fill="#C9D3D8" stroke="#8C9BA3" stroke-width="1.5"/>',
+  cloud:'<path d="M18 48h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 48z" fill="#C9D3D8" stroke="#8C9BA3" stroke-width="1.5"/>',
+  fog:'<path d="M18 38h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 38z" fill="#C9D3D8" stroke="#8C9BA3" stroke-width="1.5"/><g stroke="#8C9BA3" stroke-width="3" stroke-linecap="round"><path d="M14 46h36M20 53h26"/></g>',
+  drizzle:'<path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 40z" fill="#B5C3CC" stroke="#7D8E98" stroke-width="1.5"/><g stroke="#3E83C4" stroke-width="3" stroke-linecap="round"><path d="M24 47v3M34 47v3M44 47v3"/></g>',
+  rain:'<path d="M18 38h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 38z" fill="#A3B3BE" stroke="#6F818C" stroke-width="1.5"/><g stroke="#2F74B8" stroke-width="3" stroke-linecap="round"><path d="M22 44l-3 8M32 44l-3 8M42 44l-3 8"/></g>',
+  snow:'<path d="M18 38h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 38z" fill="#D7E0E6" stroke="#8C9BA3" stroke-width="1.5"/><g fill="#7FA9CF"><circle cx="22" cy="48" r="2.6"/><circle cx="32" cy="53" r="2.6"/><circle cx="42" cy="48" r="2.6"/></g>',
+  storm:'<path d="M18 36h28a10 10 0 0 0 0-20 14 14 0 0 0-26.8 3.2A8.4 8.4 0 0 0 18 36z" fill="#8E9DA8" stroke="#5E6E79" stroke-width="1.5"/><path d="M34 38l-8 11h7l-4 10 11-14h-7l4-7z" fill="#F2B227"/>'
+};
+const wxSvg=k=>'<svg viewBox="0 0 64 64" aria-hidden="true">'+W[k]+'</svg>';
+const gSvg=k=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+G[k]+'</svg>';
+function wxKind(c){
+  if(c===0) return 'sun'; if(c<=2) return 'partly'; if(c===3) return 'cloud';
+  if(c===45||c===48) return 'fog'; if(c>=51&&c<=57) return 'drizzle';
+  if((c>=61&&c<=67)||(c>=80&&c<=82)) return 'rain'; if((c>=71&&c<=77)||c===85||c===86) return 'snow';
+  if(c>=95) return 'storm'; return 'cloud';
+}
+const wxText={sun:'Sunny',partly:'Partly cloudy',cloud:'Cloudy',fog:'Foggy',drizzle:'Drizzle',rain:'Rain',snow:'Snow',storm:'Thunderstorms'};
+const skyOf={sun:'sun',partly:'sun',cloud:'cloud',fog:'cloud',drizzle:'rain',rain:'rain',snow:'snow',storm:'rain'};
+
+/* ---------- Outfit rules (feels-like temperatures) ---------- */
+const r=n=>Math.round(n);
+function outfit(d,g){
+  const hi=d.feelsHi, lo=Math.min(d.morning,d.evening), rain=d.rain, gust=d.gust, out=[];
+  const windy=gust>=50;
+  if(hi>=22) out.push({i:'tee',slot:'Top',name:'T-shirt',desc:'Cotton or linen, short sleeves',why:`Feels ${r(hi)}° at midday`,q:'t-shirt katoen'});
+  else if(hi>=16) out.push({i:'long',slot:'Top',name:'Long-sleeve T-shirt',desc:'Plain cotton, medium weight',why:`Feels ${r(hi)}° at midday`,q:'longsleeve katoen'});
+  else if(hi>=10) out.push({i:'knit',slot:'Top',name:'Knit sweater',desc:'Cotton or merino over a T-shirt',why:`Feels ${r(hi)}° at midday`,q:'trui katoen'});
+  else out.push({i:'knit',slot:'Top',name:'Thick wool jumper',desc:'Wool over a long-sleeve T-shirt',why:`Feels only ${r(hi)}°`,q:'wollen trui'});
+
+  if(rain>=50){
+    if(lo<10) out.push({i:'rain',slot:'Jacket',name:'Lined rain jacket',desc:'Waterproof with warm lining and hood',why:`${rain}% rain · feels ${r(lo)}°`,q:'gevoerde regenjas waterdicht'});
+    else out.push({i:'rain',slot:'Jacket',name:'Rain jacket',desc:'Waterproof shell with a hood',why:`${rain}% chance of rain`,q:'regenjas waterdicht capuchon'});
+  } else if(lo>=17 && !windy){ /* no jacket */ }
+  else if(lo>=12) out.push({i:'jacket',slot:'Jacket',name:'Light jacket',desc:windy?'Windproof shell or bomber':'Bomber, Harrington or overshirt',why:windy?`Gusts ${r(gust)} km/h`:`Feels ${r(lo)}° morning & evening`,q:windy?'windjack':'lichte jas bomberjack'});
+  else if(lo>=6) out.push({i:'jacket',slot:'Jacket',name:'Mid-weight jacket',desc:'Quilted or lightly padded, windproof',why:`Feels ${r(lo)}° morning & evening`,q:'doorgestikte jas'});
+  else if(lo>=0) out.push({i:'coat',slot:'Coat',name:'Warm coat',desc:'Wool coat or padded jacket',why:`Feels ${r(lo)}° morning & evening`,q:'winterjas'});
+  else out.push({i:'coat',slot:'Coat',name:'Winter parka',desc:'Insulated, windproof, with hood',why:`Feels ${r(lo)}°`,q:'winter parka'});
+
+  if(hi>=24){
+    if(g==='men') out.push({i:'shorts',slot:'Bottom',name:'Shorts',desc:'Chino or cotton shorts',why:`Feels ${r(hi)}°`,q:'korte broek chino'});
+    else out.push({i:'skirt',slot:'Bottom',name:'Skirt or light dress',desc:'Cotton or linen',why:`Feels ${r(hi)}°`,q:'rok katoen'});
+  } else if(g==='men') out.push({i:'trousers',slot:'Bottom',name:'Jeans or chinos',desc:'Regular weight, straight or slim',why:'',q:'chino broek'});
+  else out.push({i:'trousers',slot:'Bottom',name:'Jeans or trousers',desc:'Regular-weight denim or twill',why:'',q:'jeans straight'});
+
+  if(lo<4) out.push({i:'boot',slot:'Shoes',name:'Lined boots',desc:'Warm lining, grippy sole',why:`Feels ${r(lo)}°`,q:'gevoerde boots'});
+  else if(rain>=50) out.push({i:'boot',slot:'Shoes',name:'Waterproof shoes',desc:'Leather boots or waterproof sneakers',why:`${rain}% chance of rain`,q:'waterdichte sneakers'});
+  else out.push({i:'sneaker',slot:'Shoes',name:'Sneakers',desc:'Leather or canvas',why:'',q:'sneakers leer'});
+
+  if(rain>=30 && rain<50){
+    if(windy) out.push({extra:1,i:'rain',slot:'Bring',name:'Packable rain shell',desc:'Too windy for an umbrella',why:`${rain}% rain · gusts ${r(gust)} km/h`,q:'opvouwbare regenjas'});
+    else out.push({extra:1,i:'umbrella',slot:'Bring',name:'Storm umbrella',desc:'Wind-resistant, fits in a bag',why:`${rain}% chance of rain`,q:'stormparaplu compact'});
+  }
+  if(lo<5) out.push({extra:1,i:'scarf',slot:'Add',name:'Scarf & gloves',desc:'Wool or fleece',why:`Feels ${r(lo)}°`,q:'sjaal handschoenen wol'});
+  if(lo<1) out.push({extra:1,i:'beanie',slot:'Add',name:'Beanie',desc:'Knitted wool',why:`Feels ${r(lo)}°`,q:'muts wol'});
+  if(d.uv>=5 && rain<30) out.push({extra:1,i:'shades',slot:'Add',name:'Sunglasses',desc:'UV400 lenses',why:`UV index ${r(d.uv)}`,q:'zonnebril uv400'});
+  return out;
+}
+function advice(d){
+  const lo=Math.min(d.morning,d.evening), hi=d.feelsHi;
+  const parts=[];
+  if(d.rain>=50) parts.push('Rain is likely, so wear a waterproof layer.');
+  else if(d.rain>=30) parts.push('Showers are possible. Bring something for the rain.');
+  if(hi-lo>=6) parts.push(`Dress in layers: it feels ${r(lo)}° in the morning and ${r(hi)}° at midday.`);
+  if(d.gust>=50) parts.push(`Strong gusts up to ${r(d.gust)} km/h; leave the umbrella at home.`);
+  if(!parts.length) parts.push(hi>=22?'Warm and settled. Keep it light.':'Steady day. One main layer is enough.');
+  return parts.join(' ');
+}
+
+/* ---------- Data ---------- */
+function shape(j){
+  const D=j.daily, H=j.hourly, hmap={};
+  H.time.forEach((t,i)=>{hmap[t]={f:H.apparent_temperature[i],p:H.precipitation_probability[i],c:H.weather_code[i]}});
+  return D.time.map((date,i)=>{
+    const at=h=>hmap[date+'T'+h]||{f:D.apparent_temperature_min[i],p:0,c:D.weather_code[i]};
+    return {date,code:D.weather_code[i],tmax:D.temperature_2m_max[i],tmin:D.temperature_2m_min[i],
+      feelsHi:D.apparent_temperature_max[i],feelsLo:D.apparent_temperature_min[i],
+      rain:D.precipitation_probability_max[i]??0,mm:D.precipitation_sum[i]??0,
+      wind:D.wind_speed_10m_max[i],gust:D.wind_gusts_10m_max[i],uv:D.uv_index_max[i]??0,
+      morning:at('08:00').f,evening:at('18:00').f,
+      slots:[['08:00','Morning'],['12:00','Midday'],['17:00','Afternoon'],['21:00','Evening']].map(([h,l])=>({l,...at(h)}))};
+  });
+}
+function load(force){
+  const btn=document.getElementById('refresh'); btn.classList.add('spin');
+  return fetch(API,{cache:force?'no-store':'default'}).then(res=>{if(!res.ok) throw new Error('HTTP '+res.status);return res.json();})
+    .then(j=>{state.days=shape(j);state.fetchedAt=Date.now();state.error=null;
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify({days:state.days,fetchedAt:state.fetchedAt}))}catch(e){}})
+    .catch(e=>{state.error=e.message||'network error'})
+    .finally(()=>{btn.classList.remove('spin');render();});
+}
+
+/* ---------- State + render ---------- */
+const state={days:null,fetchedAt:0,error:null,sel:null,gender:'men'};
+try{const g=localStorage.getItem(GENDER_KEY); if(g==='men'||g==='women') state.gender=g;}catch(e){}
+try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null'); if(c&&c.days){state.days=c.days;state.fetchedAt=c.fetchedAt;}}catch(e){}
+
+const todayISO=()=>{const t=new Date();return new Date(t.getTime()-t.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const dayName=(iso,short)=>{if(iso===todayISO()) return 'Today';
+  const tm=new Date(todayISO()+'T12:00:00');tm.setDate(tm.getDate()+1);
+  if(iso===tm.toISOString().slice(0,10)) return 'Tomorrow';
+  return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',short?{weekday:'short'}:{weekday:'long'});};
+const longDate=iso=>new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shop=q=>'https://www.google.com/search?tbm=shop&q='+encodeURIComponent((state.gender==='men'?'heren ':'dames ')+q);
+
+const I={
+  feels:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/></svg>',
+  drop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+  wind:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/></svg>',
+  ext:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>'
+};
+
+function render(){
+  const main=document.getElementById('main');
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.g===state.gender)));
+  const days=(state.days||[]).filter(d=>d.date>=todayISO());
+  if(!days.length){
+    main.innerHTML=state.error
+      ?`<div class="msg"><b>Couldn't load the forecast</b>Check your internet connection and try again.<br><button id="retry">Try again</button></div>`
+      :'<div class="skeleton"></div>';
+    const rb=document.getElementById('retry'); if(rb) rb.onclick=()=>load(true);
+    return;
+  }
+  if(!state.sel||!days.some(d=>d.date===state.sel)) state.sel=days[0].date;
+  const d=days.find(x=>x.date===state.sel), k=wxKind(d.code);
+  const items=outfit(d,state.gender);
+  const lo=Math.min(...days.map(x=>x.tmin)), hi=Math.max(...days.map(x=>x.tmax)), span=Math.max(1,hi-lo);
+
+  main.innerHTML=`
+  <div class="fade" style="display:flex;flex-direction:column;gap:18px">
+  <section class="sky" data-sky="${skyOf[k]}" aria-label="Weather">
+    <div class="sky-top">
+      <div><div class="when">${esc(dayName(d.date))} · ${esc(longDate(d.date).split(' ').slice(1).join(' '))}</div>
+        <div class="cond">${wxText[k]}</div>
+        <div class="bigtemp"><span class="hi">${r(d.tmax)}°</span><span class="lo">/ ${r(d.tmin)}°</span></div></div>
+      <div class="wx">${wxSvg(k)}</div>
+    </div>
+    <div class="stats">
+      <span class="stat">${I.feels}Feels ${r(d.feelsLo)}–${r(d.feelsHi)}°</span>
+      <span class="stat">${I.drop}${d.rain}%${d.mm>=0.5?' · '+(Math.round(d.mm*10)/10)+' mm':''}</span>
+      <span class="stat">${I.wind}${r(d.wind)} km/h · gusts ${r(d.gust)}</span>
+    </div>
+    <p class="advice">${esc(advice(d))}</p>
+  </section>
+
+  <section class="timeline" aria-label="Through the day">
+    ${d.slots.map(s=>`<div class="slot"><div class="t">${s.l}</div>${wxSvg(wxKind(s.c))}<div class="f">${r(s.f)}°</div><div class="p">${s.p>=20?s.p+'%':''}</div></div>`).join('')}
+  </section>
+
+  <section>
+    <div class="h"><h2>What to wear</h2><span>${state.gender==='men'?'Men':'Women'}</span></div>
+    <div class="grid">
+      ${items.map(it=>`<article class="tile${it.extra?' extra':''}">
+        <div class="art">${gSvg(it.i)}</div>
+        <div class="slot-l">${esc(it.slot)}</div>
+        <div><b>${esc(it.name)}</b><div class="d">${esc(it.desc)}</div></div>
+        ${it.why?`<div class="why">${esc(it.why)}</div>`:''}
+        <a href="${shop(it.q)}" target="_blank" rel="noopener">See similar ${I.ext}</a>
+      </article>`).join('')}
+    </div>
+  </section>
+
+  <section>
+    <div class="h"><h2>Next days</h2><span>Tap a day</span></div>
+    <div class="days" role="group" aria-label="Choose a day">
+      ${days.map(x=>`<button class="day" data-date="${x.date}" aria-pressed="${x.date===state.sel}">
+        <span class="n">${esc(dayName(x.date,true))}</span>${wxSvg(wxKind(x.code))}
+        <span class="range-wrap"><span class="lo">${r(x.tmin)}°</span><span class="range"><i style="left:${(x.tmin-lo)/span*100}%;right:${100-(x.tmax-lo)/span*100}%"></i></span><span>${r(x.tmax)}°</span></span>
+        <span class="rp">${x.rain>=20?x.rain+'%':''}</span></button>`).join('')}
+    </div>
+  </section>
+  </div>`;
+  main.querySelectorAll('.day').forEach(b=>b.addEventListener('click',()=>{state.sel=b.dataset.date;render();window.scrollTo({top:0,behavior:'smooth'});}));
+  const t=state.fetchedAt?new Date(state.fetchedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'';
+  document.getElementById('foot').innerHTML=(state.error?'Offline: showing the forecast from '+t+'. ':'Updated '+t+'. ')+
+    'Weather by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>. “See similar” opens a shopping search.';
+}
+
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  state.gender=b.dataset.g; try{localStorage.setItem(GENDER_KEY,state.gender)}catch(e){} render();}));
+document.getElementById('refresh').addEventListener('click',()=>load(true));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden && Date.now()-state.fetchedAt>30*60*1000) load(false);});
+
+render();
+load(false);
+</script>
+</body>
+</html>
